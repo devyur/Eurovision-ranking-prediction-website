@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eurovision 2026 — Your Predictions</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0812;
+    --surface: #120f1e;
+    --card: #1a1530;
+    --border: #2e2650;
+    --accent: #c8a8ff;
+    --accent2: #ff6eb4;
+    --accent3: #ffe066;
+    --text: #e8e0ff;
+    --muted: #7a6fa0;
+    --drag-over: #261f45;
+    --good: #66ffb2;
+    --warn: #ffcc44;
+    --bad: #ff6b6b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Starfield background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, rgba(200,168,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 45%, rgba(255,110,180,0.3) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 55% 25%, rgba(255,224,102,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 60%, rgba(200,168,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 10%, rgba(255,110,180,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 20% 80%, rgba(102,255,178,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 65% 85%, rgba(255,224,102,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 70%, rgba(200,168,255,0.25) 0%, transparent 100%),
+      radial-gradient(1px 1px at 85% 40%, rgba(255,110,180,0.2) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 44px;
+  }
+
+  .header-flag {
+    font-size: 48px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 8vw, 88px);
+    letter-spacing: 3px;
+    line-height: 0.9;
+    background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+
+  .instructions {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 28px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .instructions strong { color: var(--accent); font-weight: 500; }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: 0 0 60px rgba(200,168,255,0.06);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+  }
+
+  thead th {
+    background: var(--card);
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  thead th:first-child { color: var(--accent); }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(46, 38, 80, 0.6);
+    transition: background 0.15s;
+    cursor: grab;
+    user-select: none;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(200,168,255,0.03); }
+  tbody tr.dragging { opacity: 0.45; cursor: grabbing; }
+  tbody tr.drag-over { background: var(--drag-over); box-shadow: inset 0 0 0 2px var(--accent); }
+
+  td {
+    padding: 11px 16px;
+    vertical-align: middle;
+    font-size: 14px;
+  }
+
+  .td-rank {
+    text-align: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--accent);
+    width: 56px;
+    letter-spacing: 1px;
+  }
+
+  .td-country {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .flag {
+    font-size: 20px;
+    margin-right: 8px;
+    display: inline-block;
+  }
+
+  .td-artist { color: var(--text); font-weight: 400; }
+  .td-song { color: var(--muted); font-style: italic; font-size: 13px; }
+
+  .td-result {
+    width: 90px;
+  }
+
+  .result-input {
+    width: 60px;
+    background: rgba(200,168,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    text-align: center;
+    padding: 4px 6px;
+    transition: border-color 0.2s, background 0.2s;
+    outline: none;
+    letter-spacing: 1px;
+  }
+
+  .result-input:focus {
+    border-color: var(--accent);
+    background: rgba(200,168,255,0.1);
+  }
+
+  .result-input::-webkit-inner-spin-button,
+  .result-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  .td-diff {
+    text-align: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    width: 90px;
+  }
+
+  .diff-0 { color: var(--good); }
+  .diff-low { color: var(--good); }
+  .diff-mid { color: var(--warn); }
+  .diff-high { color: var(--bad); }
+  .diff-empty { color: var(--border); }
+
+  .drag-handle {
+    color: var(--border);
+    font-size: 18px;
+    padding-right: 4px;
+    cursor: grab;
+    transition: color 0.15s;
+  }
+  tbody tr:hover .drag-handle { color: var(--muted); }
+
+  /* Accuracy panel */
+  .accuracy-panel {
+    margin-top: 32px;
+    background: linear-gradient(135deg, var(--card), rgba(26,21,48,0.95));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 36px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 24px;
+    box-shadow: 0 0 80px rgba(200,168,255,0.08);
+  }
+
+  .accuracy-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .accuracy-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    line-height: 1;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: all 0.3s;
+  }
+
+  .accuracy-value.pending {
+    background: none;
+    -webkit-text-fill-color: var(--border);
+  }
+
+  .accuracy-desc {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .accuracy-desc p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 420px;
+  }
+
+  .accuracy-bar-wrap {
+    width: 100%;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    margin-top: 14px;
+    overflow: hidden;
+  }
+
+  .accuracy-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent), var(--good));
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.5s cubic-bezier(0.25,0.8,0.25,1);
+  }
+
+  .rating-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-top: 8px;
+  }
+
+  .rating-great { background: rgba(102,255,178,0.15); color: var(--good); }
+  .rating-good  { background: rgba(255,224,102,0.12); color: var(--warn); }
+  .rating-fair  { background: rgba(200,168,255,0.12); color: var(--accent); }
+  .rating-poor  { background: rgba(255,107,107,0.12); color: var(--bad); }
+
+  .missing-note {
+    font-size: 12px;
+    color: var(--warn);
+    margin-top: 8px;
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 48px;
+    color: var(--border);
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  @media (max-width: 600px) {
+    .td-song { display: none; }
+    .accuracy-panel { padding: 20px; }
+    .accuracy-value { font-size: 48px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <span class="header-flag">🎤</span>
+    <h1>EUROVISION 2026</h1>
+    <p class="subtitle">Vienna, Austria &nbsp;·&nbsp; Grand Final — 16 May 2026 &nbsp;·&nbsp; Your Predictions</p>
+  </header>
+
+  <div class="instructions">
+    <strong>How to use:</strong> Drag rows to arrange your predicted finishing order (row position = your predicted rank).
+    After the final, fill in each country's <strong>Final Result</strong> to see your accuracy score.
+    The <strong>Spearman Rank Correlation</strong> ranges from −1 (opposite) to +1 (perfect prediction).
+  </div>
+
+  <div class="table-wrap">
+    <table id="pred-table">
+      <thead>
+        <tr>
+          <th>Prediction</th>
+          <th></th>
+          <th>Country</th>
+          <th>Artist</th>
+          <th>Song</th>
+          <th>Final Result</th>
+          <th>Difference</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+      </tbody>
+    </table>
+  </div>
+
+  <div class="accuracy-panel">
+    <div>
+      <div class="accuracy-label">Your Accuracy</div>
+      <div class="accuracy-value pending" id="corr-display">—</div>
+      <div class="accuracy-bar-wrap"><div class="accuracy-bar" id="corr-bar"></div></div>
+      <div id="rating-badge"></div>
+      <div class="missing-note" id="missing-note"></div>
+    </div>
+    <div class="accuracy-desc">
+      <p id="corr-explanation">Fill in the <strong>Final Result</strong> column after the contest to calculate your Spearman Rank Correlation — a statistical measure of how well your predictions matched reality.</p>
+    </div>
+  </div>
+
+  <footer>Data from Wikipedia · Eurovision Song Contest 2026</footer>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+// Final participants (confirmed finalists + Big 5 + host; semi-final qualifiers TBD shown as TBD)
+const PARTICIPANTS = [
+  { country: "Denmark",        flag: "🇩🇰", artist: "Søren Torpegaard Lund",          song: "Før vi går hjem" },
+  { country: "Germany",        flag: "🇩🇪", artist: "Sarah Engels",                   song: "Fire" },
+  { country: "Israel",         flag: "🇮🇱", artist: "Noam Bettan",                    song: "Michelle" },
+  { country: "Belgium",        flag: "🇧🇪", artist: "Essyla",                         song: "Dancing on the Ice" },
+  { country: "Albania",        flag: "🇦🇱", artist: "Alis",                           song: "Nân" },
+  { country: "Greece",         flag: "🇬🇷", artist: "Akylas",                         song: "Ferto" },
+  { country: "Ukraine",        flag: "🇺🇦", artist: "Leléka",                         song: "Ridnym" },
+  { country: "Australia",      flag: "🇦🇺", artist: "Delta Goodrem",                  song: "Eclipse" },
+  { country: "Serbia",         flag: "🇷🇸", artist: "Lavina",                         song: "Kraj mene" },
+  { country: "Malta",          flag: "🇲🇹", artist: "Aidan",                          song: "Bella" },
+  { country: "Czechia",        flag: "🇨🇿", artist: "Daniel Zizka",                   song: "Crossroads" },
+  { country: "Bulgaria",       flag: "🇧🇬", artist: "Dara",                           song: "Bangaranga" },
+  { country: "Croatia",        flag: "🇭🇷", artist: "Lelek",                          song: "Andromeda" },
+  { country: "United Kingdom", flag: "🇬🇧", artist: "Look Mum No Computer",           song: "Eins, Zwei, Drei" },
+  { country: "France",         flag: "🇫🇷", artist: "Monroe",                         song: "Regarde!" },
+  { country: "Moldova",        flag: "🇲🇩", artist: "Satoshi",                        song: "Viva, Moldova!" },
+  { country: "Finland",        flag: "🇫🇮", artist: "Linda Lampenius and Pete Parkkonen", song: "Liekinheitin" },
+  { country: "Poland",         flag: "🇵🇱", artist: "Alicja",                         song: "Pray" },
+  { country: "Lithuania",      flag: "🇱🇹", artist: "Lion Ceccah",                    song: "Sólo quiero más" },
+  { country: "Sweden",         flag: "🇸🇪", artist: "Felicia",                        song: "My System" },
+  { country: "Cyprus",         flag: "🇨🇾", artist: "Antigoni",                       song: "Jalla" },
+  { country: "Italy",          flag: "🇮🇹", artist: "Sal Da Vinci",                   song: "Per sempre sì" },
+  { country: "Norway",         flag: "🇳🇴", artist: "Jonas Lovv",                     song: "Ya Ya Ya" },
+  { country: "Romania",        flag: "🇷🇴", artist: "Alexandra Căpitănescu",          song: "Choke Me" },
+  { country: "Austria",        flag: "🇦🇹", artist: "Cosmó",                          song: "Tanzschein" },
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let order = PARTICIPANTS.map((_, i) => i); // indices in current row order
+let results = {}; // { originalIndex: finalResult }
+
+// ─── DRAG STATE ──────────────────────────────────────────────────────────────
+let dragSrcIndex = null; // position in order[]
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function render() {
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = '';
+
+  order.forEach((participantIdx, rowPos) => {
+    const p = PARTICIPANTS[participantIdx];
+    const prediction = rowPos + 1;
+    const finalResult = results[participantIdx];
+    const hasFinal = finalResult !== undefined && finalResult !== '';
+    const diff = hasFinal ? Math.abs(prediction - parseInt(finalResult)) : null;
+
+    const tr = document.createElement('tr');
+    tr.dataset.pos = rowPos;
+    tr.draggable = true;
+
+    let diffClass = 'diff-empty';
+    let diffText = '—';
+    if (diff !== null) {
+      diffText = diff;
+      if (diff === 0) diffClass = 'diff-0';
+      else if (diff <= 2) diffClass = 'diff-low';
+      else if (diff <= 5) diffClass = 'diff-mid';
+      else diffClass = 'diff-high';
+    }
+
+    tr.innerHTML = `
+      <td class="td-rank">${prediction}</td>
+      <td class="drag-handle">⠿</td>
+      <td class="td-country"><span class="flag">${p.flag}</span>${p.country}</td>
+      <td class="td-artist">${p.artist}</td>
+      <td class="td-song">${p.song}</td>
+      <td class="td-result">
+        <input class="result-input" type="number" min="1" max="${PARTICIPANTS.length}"
+               value="${hasFinal ? finalResult : ''}"
+               placeholder="—"
+               data-idx="${participantIdx}"
+               title="Enter final result for ${p.country}">
+      </td>
+      <td class="td-diff ${diffClass}">${diffText}</td>
+    `;
+
+    // Drag events
+    tr.addEventListener('dragstart', e => {
+      dragSrcIndex = rowPos;
+      tr.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    tr.addEventListener('dragend', () => tr.classList.remove('dragging'));
+    tr.addEventListener('dragover', e => {
+      e.preventDefault();
+      tr.classList.add('drag-over');
+    });
+    tr.addEventListener('dragleave', () => tr.classList.remove('drag-over'));
+    tr.addEventListener('drop', e => {
+      e.preventDefault();
+      tr.classList.remove('drag-over');
+      const targetPos = rowPos;
+      if (dragSrcIndex === null || dragSrcIndex === targetPos) return;
+      const moved = order.splice(dragSrcIndex, 1)[0];
+      order.splice(targetPos, 0, moved);
+      render();
+      updateAccuracy();
+    });
+
+    // Input event
+    const input = tr.querySelector('.result-input');
+    input.addEventListener('change', () => {
+      const val = parseInt(input.value);
+      const idx = parseInt(input.dataset.idx);
+      if (!isNaN(val) && val >= 1 && val <= PARTICIPANTS.length) {
+        results[idx] = val;
+      } else {
+        delete results[idx];
+        input.value = '';
+      }
+      render();
+      updateAccuracy();
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+// ─── SPEARMAN ────────────────────────────────────────────────────────────────
+function spearman(xs, ys) {
+  const n = xs.length;
+  if (n < 2) return null;
+  const dSquared = xs.reduce((sum, x, i) => sum + Math.pow(x - ys[i], 2), 0);
+  return 1 - (6 * dSquared) / (n * (n * n - 1));
+}
+
+function updateAccuracy() {
+  const pairs = [];
+  order.forEach((participantIdx, rowPos) => {
+    const finalResult = results[participantIdx];
+    if (finalResult !== undefined) {
+      pairs.push({ prediction: rowPos + 1, result: parseInt(finalResult) });
+    }
+  });
+
+  const total = PARTICIPANTS.length;
+  const filled = pairs.length;
+  const missing = total - filled;
+
+  const corrDisplay = document.getElementById('corr-display');
+  const corrBar = document.getElementById('corr-bar');
+  const ratingBadge = document.getElementById('rating-badge');
+  const explanation = document.getElementById('corr-explanation');
+  const missingNote = document.getElementById('missing-note');
+
+  if (filled < 2) {
+    corrDisplay.textContent = '—';
+    corrDisplay.className = 'accuracy-value pending';
+    corrBar.style.width = '0%';
+    ratingBadge.innerHTML = '';
+    explanation.innerHTML = 'Fill in the <strong>Final Result</strong> column after the contest to calculate your Spearman Rank Correlation — a statistical measure of how well your predictions matched reality.';
+    missingNote.textContent = filled === 1 ? 'Need at least 2 results to compute.' : '';
+    return;
+  }
+
+  const xs = pairs.map(p => p.prediction);
+  const ys = pairs.map(p => p.result);
+  const rho = spearman(xs, ys);
+  const pct = ((rho + 1) / 2) * 100; // 0–100%
+
+  corrDisplay.textContent = rho.toFixed(3);
+  corrDisplay.className = 'accuracy-value';
+  corrBar.style.width = Math.max(4, pct) + '%';
+
+  // Rating
+  let ratingClass, ratingText, desc;
+  if (rho >= 0.85) {
+    ratingClass = 'rating-great'; ratingText = '🏆 Exceptional';
+    desc = 'You have an almost uncanny ability to predict the Eurovision results. Remarkable!';
+  } else if (rho >= 0.6) {
+    ratingClass = 'rating-good'; ratingText = '⭐ Strong';
+    desc = 'Your predictions are well above chance — you have a solid read on the contest.';
+  } else if (rho >= 0.3) {
+    ratingClass = 'rating-fair'; ratingText = '🎵 Decent';
+    desc = 'A positive correlation — you got the general shape of the result right.';
+  } else if (rho >= 0) {
+    ratingClass = 'rating-fair'; ratingText = '🤔 Modest';
+    desc = 'Slight positive correlation. Eurovision continues to surprise you!';
+  } else {
+    ratingClass = 'rating-poor'; ratingText = '😅 Rough';
+    desc = 'A negative correlation — your predictions and the results were mostly inverted.';
+  }
+
+  ratingBadge.innerHTML = `<span class="rating-badge ${ratingClass}">${ratingText}</span>`;
+  explanation.innerHTML = desc + (missing > 0 ? ` <span style="color:var(--muted)">(${filled}/${total} results entered)</span>` : ` <span style="color:var(--good)">All ${total} results entered!</span>`);
+  missingNote.textContent = missing > 0 ? `${missing} result${missing > 1 ? 's' : ''} still missing.` : '';
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+render();
+updateAccuracy();
+</script>
+</body>
+</html>
